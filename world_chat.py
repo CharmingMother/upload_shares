@@ -8,6 +8,10 @@ bot=commands.Bot(command_prefix='a.)
 
 saki_chans=[]
 async def get_saki_chans():
+	"""
+	This gets the ids of channels that are called kurusaki_text_channel and it can be named anything else you'd like just make sure to change it in other areas of your code as well if it requires it
+	The ids are stored in the variable `saki_chans`
+	"""
     for i in bot.servers:
         for x in i.channels:
             if x.type == discord.ChannelType.text and x.name == 'kurusaki_text_channel' and x.id not in saki_chans:
@@ -18,10 +22,11 @@ async def get_saki_chans():
 
 @bot.event
 async def on_channel_create(chan):
+	"""
+	This event function will add the new channels that are created to the channel if they are named kurusaki_text_channel and their ids aren't in the list
+	"""
     if chan.id not in saki_chans:
         saki_chans.append(chan.id)
-    else:
-        pass
                  
 
                  
@@ -65,6 +70,6 @@ async def on_message(msg):
                     emb.set_footer(text="From {}".format(msg.server.name))
                     await bot.send_message(discord.Object(id=i),embed=emb)
 
-
+	await bot.process_commands(msg)
   
 bot.run('TOKEN')

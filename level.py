@@ -9,9 +9,9 @@ import os
 
 
 
-bot=commands.Bot(command_prefix='a.')
-evn=bot.event
-cms=bot.command(pass_context=True)
+bot=commands.Bot(command_prefix='a.') #the command prefix for the bot
+evn=bot.event# a short cut for @bot.event, but now @evn instead
+cms=bot.command(pass_context=True) #now you can just do @cms instead of doing @bot.command(pass_context=True) everytime
 ups={'cp':0}
 
 """
@@ -38,18 +38,27 @@ db = 'https://jsonblob.com/api/55eae264-1470-11e9-8960-672add231a5a' #this is yo
 
 
 def get_db():
+    """
+    [This function requests the data from the web server(database) jsonblob.com]
+    """
     while True:
         r=rq.Session().get(db)
-        if r.status_code == 200:
-            global data
-            data=r.json()
-            break
-get_db()
+        if r.status_code == 200: #if request is successful
+            global data #create global variable
+            data=r.json() #set the global variale to the json result
+            break #break the loop
+
+
+get_db()# run the function called get_db
 
 
 
 
 async def auto_update(user,ual=False):
+    """
+    This function is used to update the database manually or automatically
+    The second parameter is used to determine if the command was triggered manualy or automatically
+    """
     if user.author.id != 'author id':
         while True:
             r=rq.get('da',data=data)
@@ -75,8 +84,16 @@ async def on_ready():
 
 @evn
 async def on_message(msg):
-    """[summary]
+    """[The on message function is used for the following:
+    Add non-existing users: Add users that are not in database yet
+    Update existing user's info:Update info such as coins or exp
+    Detect changes: Add the ups['cp] value by 1 everytime a chagne is made  and if it exceeds a certain limit(250) update the data to the database ]
     
+    The current values of coin and exp users get from send messages are all set to default to 1 for now, you can customize the values if you desire.
+    The code is not complete yet so once it's complete, the coins and exp values will be determined by the length of the message.
+
+
+
     Arguments:
         msg {[obj]} -- [The context of the user that sent the message]
     """
@@ -159,29 +176,49 @@ async def gift(con,user:discord.Member,amt:int):
 
 @cms
 async def daily(con):
+    """
+    [The daily command gives users that use it 30 exp and 10 coin. 
+    This command uses the datetime library and the day value to determine if use has already checked in or not
+
+    `datetime.datetime.now().day 
+
+    To customize the values of the amounts given change the following variables
+    
+    Exp: The amount of exp to give by default when using the daily command
+    Coin: The amount of coin to give by default when this command is used
+    
+    Exp = 30 Default Value
+    Coin = 10 Default Value
+    ]
+    """
+    Exp= 30
+    Coin = 10
     user=con.message.author
     if user.id in data['users']:
         if user.id in data['daily']:
             if datetime.datetime.now().day != data['daily'][user.id]['check']:
-                data['users'][user.id]['coins']+=10
-                data['users'][user.id]['exp']+=30
-                await bot.say("You've been give 30 exp and 10 coins")
+                data['users'][user.id]['coins']+=Coin
+                data['users'][user.id]['exp']+=Exp
+                await bot.say("You've been give {} exp and {} coins".format(Exp,Coin))
             if datetime.datetime.now().day == data['daily'][user.id]['check']:
                 await bot.say("You've already checked in for today, please check in for daily rewards tomorrow ")
 
         if user.id not in data['daily']:
-            data['users'][user.id]['coins']+=10
-            data['users'][user.id]['exp'] += 30
+            data['users'][user.id]['coins']+=Coin
+            data['users'][user.id]['exp'] += Exp
             data['daily'][user.id]={"check":datetime.datetime.now().day}
-            await bot.say("You've been give 30 exp and 10 coins")
+            await bot.say("You've been give {} exp and {} coins".format(Exp,Coin))
 
 
     if user.id not in data['users']:
         if user.id not in data['daily']:
-            data['users'][user.id]['coins'] += 10
-            data['users'][user.id]['exp'] += 30
+            data['users'][user.id]['coins'] += Coin
+            data['users'][user.id]['exp'] += Exp
             data['daily'][user.id] = {"check": datetime.datetime.now().day}
-            await bot.say("You've been give 30 exp and 10 coins")
+            await bot.say("You've been give {} exp and {} coins".format(Exp,Coin))
+
+
+
 
 @cms
 async def db_update(con):

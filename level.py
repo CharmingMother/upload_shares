@@ -8,8 +8,30 @@ import datetime
 import os
 
 
+def get_prefix(bot, msg):
+    """[This funciton allows you to change the command prefixes or add more prefixes that can be used to tirgger the bot commands
+        This can be used to make per server prefixes and or per user prefixes]
+    
+    Arguments:
+        bot {[Class]} -- [The bot]
+        msg {[Class]} -- [The messages being sent]
+    
+    Returns:
+        [type] -- [This will return the command prefixes that can be used]
+    """
 
-bot=commands.Bot(command_prefix='a.') #the command prefix for the bot
+
+    user_cm=['!@','$','%','^'] #another command prefix list
+    if msg.author.id == '1934123473892': #this makes is so that this user will have a different prefix from others and can't use the prefixes that it does't have access to
+        return commands.when_mentioned_or(*user_cm)(bot, msg) #this user will onlyb e able to use the command prefies inside the list user_cm
+
+
+    prefixes = ['a.', 's.','!','?'] #the normal prefixes that users can use if they are not in the igs list
+
+    return commands.when_mentioned_or(*prefixes)(bot, msg)# now any of the command prefixes  a. s. ! ? can be used to run bot commands
+
+
+bot = commands.Bot(command_prefix=get_prefix,description='A bot with multiple command prefixes')
 evn=bot.event# a short cut for @bot.event, but now @evn instead
 cms=bot.command(pass_context=True) #now you can just do @cms instead of doing @bot.command(pass_context=True) everytime
 ups={'cp':0}

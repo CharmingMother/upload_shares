@@ -3,4 +3,13 @@ import asyncio
 from discord.ext import commands
 
 class Events:
-  pass
+  def __init__(self,bot):
+    self.bot=bot
+
+    
+    
+  
+
+
+def setup(bot):
+    bot.add_cog(Events(bot))

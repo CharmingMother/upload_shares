@@ -1,3 +1,22 @@
+"""
+Feel free to customize this file into what you desire.
+
+
+
+This file is for determining how much coins or exp a user should get from sending a certain amount of mesage.
+After reaching a certain poitns the user will have a level name. This is also applied to servers.
+
+The level starts from "isolated dwelling" for servers and "slave" for users or non-servers
+
+The `ranks` variable will cointain the rank names for each amount of exp for servers and users
+
+The `coin` variable willl cointain the values for the coins that user will get from the length of messages being sent.
+
+"""
+
+
+
+
 ranks={
   "level system": {
     "servers lvls": {

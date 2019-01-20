@@ -1,4 +1,5 @@
 import json
+from pts import ranks,points
 import discord
 import asyncio
 import requests
@@ -96,7 +97,6 @@ async def auto_update(user,ual=False):
 
 
 
-
 @bot.event
 async def on_ready():
     """[Determine the task to do when the bot is ready
@@ -104,9 +104,13 @@ async def on_ready():
     print(bot.user.name)
 
 
+
 @evn
 async def on_message(msg):
-    """[The on message function is used for the following:
+    """
+    You will need the file named pts.py and it's values
+    
+    The on message function is used for the following:
     Add non-existing users: Add users that are not in database yet
     Update existing user's info:Update info such as coins or exp
     Detect changes: Add the ups['cp] value by 1 everytime a chagne is made  and if it exceeds a certain limit(250) update the data to the database ]
@@ -120,14 +124,20 @@ async def on_message(msg):
         msg {[obj]} -- [The context of the user that sent the message]
     """
 
+    
+    points=len(msg.content.split())
+
+    Exp = pts['points']['exp'][str(points)]
+    Coin = pts['points']['coin'][str(points)]
+
     if msg.channel.is_private == False: #check if the message is from DM or server
         if msg.server.id not in data['servers']: #server id not in database
             data['servers'][msg.server.id]={'coins':0,'exp':0} #add it to database
-            ups['cp']+=1
+            ups['cp']+= 1
 
         if msg.server.id in data['servers']: #server in database
-            data['servers'][msg.server.id]['coins']+=1
-            data['servers'][msg.server.id]['exp'] += 1 
+            data['servers'][msg.server.id]['coins']+= Coin
+            data['servers'][msg.server.id]['exp'] += Exp
             ups['cp']+=1
 
     if msg.author.id not in data['users']:# user not in database
@@ -136,8 +146,8 @@ async def on_message(msg):
 
 
     if msg.author.id in data['users']:#user in database
-        data['users'][msg.author.id]['coins']+=1 
-        data['users'][msg.author.id]['exp']+=1
+        data['users'][msg.author.id]['coins']+= Coin
+        data['users'][msg.author.id]['exp']+= Exp
         ups['cp']+=1
 
     if ups['cp'] > 250:

@@ -62,7 +62,7 @@ Once you've done all that replace the urls I that I have in the code with your o
 
 # this is your database url
 db = 'https://jsonblob.com/api/55eae264-1470-11e9-8960-672add231a5a'
-
+rewards_db = 'https://jsonblob.com/api/76262d92-1f7c-11e9-94d1-a979d19deaff'
 
 def get_db():
     """
@@ -73,6 +73,11 @@ def get_db():
         if r.status_code == 200:  # if request is successful
             global data  # create global variable
             data = r.json()  # set the global variale to the json result
+        
+        rewards_db=rq.get(rewards_db) #request the rewards database
+        if rewards_db.status_code == 200: #request was successful
+            global r_db #define a global variable for it
+            r_db = rewards_db.json() #store it into global variable
             break  # break the loop
 
 
@@ -171,24 +176,20 @@ async def check(con, user: discord.Member = None):
     if user == None or user.id == con.message.author.id:  # user not tagged or == to author
         if con.message.author.id in data['users']:  # use in database
             # sent back the points
-            await bot.say("Coins:{}\nExp:{}".format(round(data['users'][con.message.author.id]['coins'],2), round(data['users'][con.message.author.id]['exp'],1)))
+            await bot.say("{}\nCoins:{}\nExp:{}\nRank:{}".format(con.message.author.name,round(data['users'][con.message.author.id]['coins'],2), round(data['users'][con.message.author.id]['exp'],1),data['users'][con.message.author.id]['level']))
         else:  # no need for if user not in database since the on_message function will do the job
-            await bot.say("Coins:1\nExp:1")
+            await bot.say("{}\nCoins:1\nExp:1\nRank:slave".format(con.message.author.name))
 
     if user != None and user.id != con.message.author.id:  # user other than the author is tagged
         if user.id in data['users']:  # tagged user in database
             # send back results for the request
-            await bot.say("{}\nCoins:{}\nExp:{}".format(user.name, round(data['users'][user.id]['coins'],2), round(data['users'][user.id]['exp'],1)))
+            await bot.say("{}\nCoins:{}\nExp:{}\nRank:slave".format(user.name, round(data['users'][user.id]['coins'], 2), round(data['users'][user.id]['exp'], 1), data['users'][user.id]['level']))
         else:  # user will be added from the on_mesage function
-            await bot.say("{}\nCoins:1\nExp:1".format(user.name))
+            await bot.say("{}\nCoins:1\nExp:1\nRank:slave".format(user.name))
 
 
 @cms
 async def gift(con, user: discord.Member, amt: int): 
-
-#######on working still not complete
-
-
 
 
 
@@ -256,25 +257,37 @@ async def daily(con):
     user = con.message.author
     if user.id in data['users']:
         if user.id in data['daily']:
-            if datetime.datetime.now().day != data['daily'][user.id]['check']:
-                data['users'][user.id]['coins'] += Coin
-                data['users'][user.id]['exp'] += Exp
-                await bot.say("You've been give {} exp and {} coins".format(Exp, Coin))
+            
+            if data['daily'][user.id]['current'] - data['daily'][user.id]['before'] !=1:
+                if data['daily'][user.id]['current'] - data['daily'][user.id]['before'] not in data['daily'][user.id]['monthos']:
+                    data['daily'][user.id]['streak']=1
+
+
             if datetime.datetime.now().day == data['daily'][user.id]['check']:
                 await bot.say("You've already checked in for today, please check in for daily rewards tomorrow ")
+            
+            if datetime.datetime.now().day != data['daily'][user.id]['check']:
+                data['users'][user.id]['coins'] += Coin *data['daily'][user.id]['streak'] #multiple the default coin value by the streak, limit is 6
+                data['users'][user.id]['exp'] += Exp *data['daily'][user.id]['streak'] #multiple the default coin value by the streak, limit is 6
+                await bot.say("You've been give {} exp and {} coins".format(Exp*data['daily'][user.id]['streak'], Coin*data['daily'][user.id]['streak']))
+                data['daily'][user.id]['check']=datetime.datetime.now().day
+
+
+            if data['daily'][user.id]['streak'] <=6:
+                data['daily'][user.id]['streak'] +=1 #add the streak if it's lower than limit
 
         if user.id not in data['daily']:
-            data['users'][user.id]['coins'] += Coin
-            data['users'][user.id]['exp'] += Exp
-            data['daily'][user.id] = {"check": datetime.datetime.now().day}
-            await bot.say("You've been give {} exp and {} coins".format(Exp, Coin))
+            data['users'][user.id]['coins'] += Coin *data['daily'][user.id]['streak'] #multiple the default coin value by the streak, limit is 6
+            data['users'][user.id]['exp'] += Exp * data['daily'][user.id]['streak'] #multiple the default coin value by the streak, limit is 6
+            data['daily'][user.id] = {"check": datetime.datetime.now().day,'streak':1,"before":22,"current":23,"diff":1}
+            await bot.say("You've been give {} exp and {} coins".format(Exp*data['daily'][user.id]['streak'], Coin*data['daily'][user.id]['streak']))
 
     if user.id not in data['users']:
         if user.id not in data['daily']:
-            data['users'][user.id]['coins'] += Coin
-            data['users'][user.id]['exp'] += Exp
-            data['daily'][user.id] = {"check": datetime.datetime.now().day}
-            await bot.say("You've been give {} exp and {} coins".format(Exp, Coin))
+            data['users'][user.id]['coins'] += Coin *data['daily'][user.id]['streak'] #multiple the default coin value by the streak, limit is 6
+            data['users'][user.id]['exp'] += Exp *data['daily'][user.id]['streak'] #multiple the default coin value by the streak, limit is 6
+            data['daily'][user.id] = {"check": datetime.datetime.now().day,'streak':1,"before":22,"current":23,"diff":1}
+            await bot.say("You've been give {} exp and {} coins".format(Exp*data['daily'][user.id]['streak'], Coin*data['daily'][user.id]['streak']))
 
 
 @cms
@@ -297,9 +310,20 @@ async def get(con):
         pass
 
 
+@cms
+async def rewards(con):
+    """[This function lets users know what the reward options are from the exp and coins that they've earned]
+    
+    Arguments:
+        con {[class]} -- [The attrs from the command user]
+    """
+
+    await bot.say(r_db)
+
+
 
 #you can do
 #bot.run(os.environ['bot token']) to run it on heroku  or
 #bot.run(os.get.environ['bot token'])
 
-bot.run('bot_token here)
+bot.run(bot_token)

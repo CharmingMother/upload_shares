@@ -184,7 +184,7 @@ async def check(con, user: discord.Member = None):
     if user != None and user.id != con.message.author.id:  # user other than the author is tagged
         if user.id in data['users']:  # tagged user in database
             # send back results for the request
-            await bot.say("{}\nCoins:{}\nExp:{}\nRank:slave".format(user.name, round(data['users'][user.id]['coins'], 2), round(data['users'][user.id]['exp'], 1), data['users'][user.id]['level']))
+            await bot.say("{}\nCoins:{}\nExp:{}\nRank: {}".format(user.name, round(data['users'][user.id]['coins'], 2), round(data['users'][user.id]['exp'], 1), data['users'][user.id]['level']))
         else:  # user will be added from the on_mesage function
             await bot.say("{}\nCoins:1\nExp:1\nRank:slave".format(user.name))
 
@@ -334,8 +334,6 @@ async def rewards(con):
     """
 
     msg=await bot.say(r_db)
-    for i in range(len(r_db['rewards']['users'])):
-        await bot.add_reaction()
 
 
 

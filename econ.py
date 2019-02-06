@@ -75,10 +75,10 @@ def get_db():
             global data  # create global variable
             data = r.json()  # set the global variale to the json result
         
-        r_db=rq.get(rewards_db) #request the rewards database
-        if r_db.status_code == 200: #request was successful
+        re_db=rq.get(rewards_db) #request the rewards database
+        if re_db.status_code == 200: #request was successful
             global r_db #define a global variable for it
-            r_db = r_db.json() #store it into global variable
+            r_db = re_db.json() #store it into global variable
             break  # break the loop
 
 

@@ -1,3 +1,4 @@
+import run
 import json
 from pts import ranks, points
 import discord
@@ -74,10 +75,10 @@ def get_db():
             global data  # create global variable
             data = r.json()  # set the global variale to the json result
         
-        rewards_db=rq.get(rewards_db) #request the rewards database
-        if rewards_db.status_code == 200: #request was successful
+        r_db=rq.get(rewards_db) #request the rewards database
+        if r_db.status_code == 200: #request was successful
             global r_db #define a global variable for it
-            r_db = rewards_db.json() #store it into global variable
+            r_db = r_db.json() #store it into global variable
             break  # break the loop
 
 
@@ -312,13 +313,29 @@ async def get(con):
 
 @cms
 async def rewards(con):
-    """[This function lets users know what the reward options are from the exp and coins that they've earned]
+    """
+    [
+        Users will be given a list of options for the rewards.
+        Users can get the rewards by adding a reaction to the option.
+        Ex:
+            🇦: Get a role color (1,000 coins) (15 Days)
+            🇧: Get custom prefix (5,000 coins) (31 Days)
+            🇨: Change bot's playing status (1,000) (5 hours) (`status must be appropriate`) (if request already active, it will be queued)
+            🇩: Change bot's listening status (1,000) (5 hours) (`status must be appropriate`) (if request already active, it will be queued)
+            🇪: Change bot's watching status (1,000) (5 hours) (`status must be appropriate`) (if request already active, it will be queued)
+    ]
     
+
+
+
     Arguments:
         con {[class]} -- [The attrs from the command user]
+
     """
 
-    await bot.say(r_db)
+    msg=await bot.say(r_db)
+    for i in range(len(r_db['rewards']['users'])):
+        await bot.add_reaction()
 
 
 
@@ -326,4 +343,4 @@ async def rewards(con):
 #bot.run(os.environ['bot token']) to run it on heroku  or
 #bot.run(os.get.environ['bot token'])
 
-bot.run(bot_token)
+bot.run(run.yakumo)

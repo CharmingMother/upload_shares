@@ -10,7 +10,7 @@ class Fun:
 
 
     
-  @commands.command(pass_context=True):
+  @commands.command(pass_context=True)
   async def fun(con):
     await self.bot.say("This is fun!")
 
